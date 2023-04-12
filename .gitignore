@@ -1,0 +1,45 @@
+# .gitignore for Java projects in VSCode
+
+# Compiled class files
+*.class
+
+# Compiled binary files
+*.jar
+*.war
+*.ear
+
+# Maven specific files and folders
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/maven-javadoc-plugin*
+.mvn/maven-buildinfo.properties
+
+# Gradle specific files and folders
+.gradle/
+build/
+*.iml
+*.ipr
+*.iws
+
+# IDE specific files and folders
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+*.log
+*.swp
+*.bak
+*.tmp
+
+# OS specific files and folders
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
