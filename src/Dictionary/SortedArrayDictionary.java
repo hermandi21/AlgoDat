@@ -93,10 +93,6 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
         return size;
     }
 
-    @Override
-    public Iterator<Entry<String, String>> iterator() {
-        return null;
-    }
 
     @Override
     public void forEach(Consumer<? super Entry<K, V>> action) {
@@ -106,5 +102,12 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
     @Override
     public Spliterator<Entry<K, V>> spliterator() {
         return Dictionary.super.spliterator();
+    }
+
+
+    @Override
+    public Iterator<Entry<K, V>> iterator() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
     }
 }

@@ -1,5 +1,7 @@
 package Dictionary;
 
+import java.util.EmptyStackException;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,21 +62,37 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
                 return oldValue;
             }
         }
-        
+        //Fall2 - exisitiert nicht muss noch eingefuegt werden
         bucketEntries.add(new Entry<K,V>(key, value));
         size++;
         if(size > LOAD_FACTOR * hashTable.length){
-
+            resizeTable();
         }
-
-        //Fall2 - exisitiert nicht muss noch an die richtige Position eingefuegt werden
+        return null;
+        
     }
 
     @Override
     public V remove(K key) {
-        //Fall1- existiert bereits
+        
+        //Fall: entry existiert bereits
+        int hash = getHash(key);
+        List<Entry<K,V>> bucketEntries = hashTable[hash];       //mit dem berechneten Hash-Wert gespeichert ist
+        Iterator<Entry<K,V>> iterator = bucketEntries.iterator();
 
-        //Fall2 - exisitiert nicht muss noch an die richtige Position eingefuegt werden
+
+        while(iterator.hasNext()){
+            Entry<K,V> entry = iterator.next();
+
+            if(entry.getKey().equals(key)){
+                V value = entry.getValue();
+                iterator.remove();
+                size--;
+                return value;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -93,7 +111,52 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
     }
 
  
+    //Methode um auf primzahleigenschaft zu prüfen
+    private static boolean isPrime(int zahl){
+        if(zahl <= 1){
+            return false;
+        }
+        for(int i = 2; i < Math.sqrt(zahl); i++){
+            if(zahl % i == 0){
+                return false;
+            }
+        }
+        return true;
+    }
 
+    //Methode um mir die naechste Primzahl auszugeben
+    private static int nextPrime(int zahl){
+        if(zahl <= 1){
+            zahl = 2;   // Da 2 die kleinste Primzahl ist
+        }
+        else{
+            zahl++;
+        }
+
+        while(true){
+            if(isPrime(zahl)){
+                return zahl;    //Wenn die aktuelle Prime gefunden wurde, zurückgeben
+            }
+            zahl++; //Hier um eins erhoehen, einfach um zur naechsten Zahl zu wechseln
+        }
+    }
+
+    private void resizeTable() {
+        int newCapacity = nextPrime(hashTable.length * 2);
+        List<Entry<K, V>>[] newTable = new LinkedList[newCapacity];
+        for (int i = 0; i < newCapacity; i++) {
+            newTable[i] = new LinkedList<>();
+        }
+        for (List<Entry<K, V>> bucket : hashTable) {
+            for (Entry<K, V> entry : bucket) {
+                int hash = getHash(entry.getKey());
+                List<Entry<K, V>> newBucket = newTable[hash];
+                newBucket.add(entry);
+            }
+        }
+        hashTable = newTable;
+    }
+    
   
 
 
