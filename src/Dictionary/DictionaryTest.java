@@ -6,20 +6,23 @@
  */
 package Dictionary;
 
+import java.util.Scanner;
+
+
 /**
  * Static test methods for different Dictionary implementations.
  * @author oliverbittel
  */
-public class DictionaryTest {
+public class DictionaryTest extends DictionaryTUI {
 
 	/**
 	 * @param args not used.
 	 */
 	public static void main(String[] args)  {
 		
-		//testSortedArrayDictionary();
-		//testHashDictionary();
-		testBinaryTreeDictionary();
+		testSortedArrayDictionary();
+		testHashDictionary();
+		//testBinaryTreeDictionary();
 	}
 
 	private static void testSortedArrayDictionary() {
@@ -32,8 +35,8 @@ public class DictionaryTest {
 		testDict(dict);
 	}
 	
-	private static void testBinaryTreeDictionary() {
-		Dictionary<String, String> dict = new BinaryTreeDictionary<>();
+	/*  	private static void testBinaryTreeDictionary() {
+ 		Dictionary<String, String> dict = new BinaryTreeDictionary<>();
 		testDict(dict);
         
         // Test für BinaryTreeDictionary mit prettyPrint 
@@ -78,17 +81,17 @@ public class DictionaryTest {
 		btd.remove(50);
         System.out.println("remove:");
         btd.prettyPrint();
-    }
+    } */
 	
 	private static void testDict(Dictionary<String, String> dict) {
 		System.out.println("===== New Test Case ========================");
 		System.out.println("test " + dict.getClass());
 		System.out.println(dict.insert("gehen", "go") == null);		// true
 		String s = new String("gehen");
-		System.out.println(dict.searchKey(s) != null);					// true
-		System.out.println(dict.searchKey(s).equals("go"));			// true
+		System.out.println(dict.search(s) != null);					// true
+		System.out.println(dict.search(s).equals("go"));			// true
 		System.out.println(dict.insert(s, "walk").equals("go"));	// true
-		System.out.println(dict.searchKey("gehen").equals("walk"));	// true
+		System.out.println(dict.search("gehen").equals("walk"));	// true
 		System.out.println(dict.remove("gehen").equals("walk"));	// true
 		System.out.println(dict.remove("gehen") == null); // true
 		dict.insert("starten", "start");
@@ -110,7 +113,7 @@ public class DictionaryTest {
 		dict.insert("diskutieren", "discuss");
 		System.out.println(dict.size());
 		for (Dictionary.Entry<String, String> e : dict) {
-			System.out.println(e.getKey() + ": " + e.getValue() + " search: " + dict.searchKey(e.getKey()));
+			System.out.println(e.getKey() + ": " + e.getValue() + " search: " + dict.search(e.getKey()));
 		}
 	}
 	

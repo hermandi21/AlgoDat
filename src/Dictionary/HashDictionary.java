@@ -20,7 +20,7 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
     // Konstruktor
     // Dieser erstellt eine linear verkettete Liste der Größe 16, was keine Primzahl ist
     @SuppressWarnings("unchecked")
-    public HashDictionary(){
+    public HashDictionary(int Anfangsgroesse){
         size = 0;
         hashTable = new LinkedList[DEF_CAPACITY];
 
@@ -154,7 +154,7 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
                 newBucket.add(entry);
             }
         }
-        hashTable = newTable;
+        hashTable = (LinkedList<Entry<K, V>>[]) newTable;
     }
     
   
