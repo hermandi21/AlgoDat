@@ -63,12 +63,16 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
             }
         }
         //Fall2 - exisitiert nicht muss noch eingefuegt werden
-        bucketEntries.add(new Entry<K,V>(key, value));
-        size++;
-        if(size > LOAD_FACTOR * hashTable.length){
+        while(iterator().hasNext()){
+            bucketEntries.add(new Entry<K,V>(key, value));
+            size++;
+            if(size > LOAD_FACTOR * hashTable.length){
             resizeTable();
         }
+        
         return null;
+        }
+        
         
     }
 

@@ -31,7 +31,7 @@ public class DictionaryTest extends DictionaryTUI {
 	}
 	
 	private static void testHashDictionary() {
-		Dictionary<String, String> dict = new HashDictionary<>(3);
+		Dictionary<String, String> dict = new HashDictionary<>(4);
 		testDict(dict);
 	}
 	

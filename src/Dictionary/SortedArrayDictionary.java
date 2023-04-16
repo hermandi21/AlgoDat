@@ -84,6 +84,7 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
         data[--size] = null;
         return r;
         }
+        return null;
     }
 
 
@@ -107,7 +108,6 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
 
     @Override
     public Iterator<Entry<K, V>> iterator() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'iterator'");
-    }
+        return null;
+    } 
 }
