@@ -1,9 +1,14 @@
 package Dictionary;
 
+import java.security.Key;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.function.Consumer;
+
+import javax.management.ValueExp;
+import javax.xml.validation.Validator;
 
 public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictionary<K, V> {
 
@@ -100,14 +105,29 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
         Dictionary.super.forEach(action);
     }
 
-    @Override
-    public Spliterator<Entry<K, V>> spliterator() {
-        return Dictionary.super.spliterator();
+    public Iterator<Entry<K, V>> iterator() {
+        return new SortedArrayDictionaryIterator();
     }
 
+    private class SortedArrayDictionaryIterator implements Iterator<Entry<K, V>> {
 
-    @Override
-    public Iterator<Entry<K, V>> iterator() {
-        return null;
-    } 
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex < size;
+        }
+
+        @Override
+        public Entry<K, V> next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException("Ende des Wörterbuchs erreicht");
+            }
+            Entry<K, V> entry = data[currentIndex];
+            currentIndex++;
+            return entry;
+        }
+
+
+    }
 }

@@ -1,3 +1,4 @@
+
 package Dictionary;
 
 import java.io.File;
@@ -6,9 +7,7 @@ import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
-
 import javax.swing.JFileChooser;
-import Dictionary.Dictionary;
 
 public class DictionaryTUI{
 
@@ -74,10 +73,10 @@ public class DictionaryTUI{
                 dictionary = new HashDictionary<>(3);
                 System.out.println("Dictionary mit HashDictionary erstellt.");
                 break;
-           /*  case "binarytreedictionary":
+             /* case "binarytreedictionary":
                 dictionary = new BinaryTreeDictionary<>();
                 System.out.println("Dictionary mit BinaryTreeDictionary erstellt.");
-                break; */
+                break;  */
             default:
                 System.out.println("Ungültige Implementierung! Es wurde SortedArrayDictionary verwendet.");
                 dictionary = new SortedArrayDictionary<>();
@@ -153,3 +152,4 @@ public class DictionaryTUI{
     }
     
 }
+ 

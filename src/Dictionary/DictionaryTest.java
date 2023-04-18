@@ -13,7 +13,7 @@ import java.util.Scanner;
  * Static test methods for different Dictionary implementations.
  * @author oliverbittel
  */
-public class DictionaryTest extends DictionaryTUI {
+public class DictionaryTest  {
 
 	/**
 	 * @param args not used.
@@ -31,7 +31,7 @@ public class DictionaryTest extends DictionaryTUI {
 	}
 	
 	private static void testHashDictionary() {
-		Dictionary<String, String> dict = new HashDictionary<>(4);
+		Dictionary<String, String> dict = new HashDictionary<>(3);
 		testDict(dict);
 	}
 	
@@ -84,6 +84,9 @@ public class DictionaryTest extends DictionaryTUI {
     } */
 	
 	private static void testDict(Dictionary<String, String> dict) {
+
+		long start = System.nanoTime(); //im jetztigen Moment aufgenommene Zeit in nSec
+
 		System.out.println("===== New Test Case ========================");
 		System.out.println("test " + dict.getClass());
 		System.out.println(dict.insert("gehen", "go") == null);		// true
@@ -112,7 +115,15 @@ public class DictionaryTest extends DictionaryTUI {
 		dict.insert("planen", "plan");
 		dict.insert("diskutieren", "discuss");
 		System.out.println(dict.size());
-	 
+		for (Dictionary.Entry<String, String> e : dict) {
+			System.out.println(e.getKey() + ": " + e.getValue() + " search: " + dict.search(e.getKey()));
+		}
+
+		long end = System.nanoTime();
+		double elapsedTime = (double)(end-start)/1.0e06; // Zeit in msec
+
+		System.out.println("");
+		System.out.println("Benötigte Zeit in msec: " + elapsedTime);
 	}
 	
 }

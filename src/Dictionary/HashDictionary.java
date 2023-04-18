@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javax.lang.model.element.Element;
+import javax.xml.crypto.Data;
 
 public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V>{
 
@@ -49,72 +49,100 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
     }
 
     @Override
-    public V insert(K key, V value) {
-        
-        //Fall1- existiert bereits
-        int hash = getHash(key);
+public V insert(K key, V value) {
 
-        List<Entry<K,V>> bucketEntries = hashTable[hash];
-        for( Entry<K,V> elem : bucketEntries){
-            if(elem.getKey().equals(key)){      //Wenn der Key gleich ist, also das elem schon exisitiert. Muss den value an den Key platzieren
-                V oldValue = elem.getValue();
-                elem.setValue(value);
-                return oldValue;
-            }
+    // Fall 1: Eintrag existiert bereits
+    int hash = getHash(key);
+    List<Entry<K,V>> bucketEntries = hashTable[hash];
+    for (Entry<K,V> elem : bucketEntries){
+        if(elem.getKey().equals(key)){      // Wenn der Key gleich ist, also das elem schon exisitiert. Muss den value an den Key platzieren
+            V oldValue = elem.getValue();
+            elem.setValue(value);
+            return oldValue;
         }
-        //Fall2 - exisitiert nicht muss noch eingefuegt werden
-        while(iterator().hasNext()){
-            bucketEntries.add(new Entry<K,V>(key, value));
-            size++;
-            if(size > LOAD_FACTOR * hashTable.length){
-            resizeTable();
-        }
-        
-        return null;
-        }
-        
-        
     }
 
-    @Override
-    public V remove(K key) {
-        
-        //Fall: entry existiert bereits
-        int hash = getHash(key);
-        List<Entry<K,V>> bucketEntries = hashTable[hash];       //mit dem berechneten Hash-Wert gespeichert ist
-        Iterator<Entry<K,V>> iterator = bucketEntries.iterator();
+    // Fall 2: Eintrag existiert nicht, muss noch eingefügt werden
+    hashTable[hash].add(new Entry<K,V>(key, value));
+    size++;
 
+    if(size > LOAD_FACTOR * hashTable.length){
+         resizeTable();
+     }
 
-        while(iterator.hasNext()){
-            Entry<K,V> entry = iterator.next();
+    return null;
+}
 
-            if(entry.getKey().equals(key)){
-                V value = entry.getValue();
-                iterator.remove();
-                size--;
-                return value;
-            }
+@Override
+public V remove(K key) {
+
+    // Fall: Eintrag existiert bereits
+    int hash = getHash(key);
+    List<Entry<K,V>> bucketEntries = hashTable[hash];
+    Iterator<Entry<K,V>> iterator = bucketEntries.iterator();
+
+    while(iterator.hasNext()){
+        Entry<K,V> entry = iterator.next();
+        if(entry.getKey().equals(key)){
+            V value = entry.getValue();
+            iterator.remove();
+            size--;
+            return value;
         }
-
-        return null;
     }
+
+    return null;
+}
+
 
     @Override
     public int size() {
-        return 0;
+        return size;
     }
 
     @Override
     public Iterator<Entry<K, V>> iterator() {
-        return null;
+        return new HashDictionaryIterator();
     }
 
-    @Override
-    public void forEach(Consumer<? super Entry<K, V>> action) {
-        Dictionary.super.forEach(action);
+    private class HashDictionaryIterator implements Iterator<Entry<K,V>> {
+        
+        private int currentIndex = 0;
+        private Iterator<Entry<K,V>> bucketIterator = null;
+
+        @Override
+        public boolean hasNext() {
+            if(bucketIterator != null && bucketIterator.hasNext()){
+                return true;
+            }
+
+            while(currentIndex < hashTable.length){
+                if(hashTable[currentIndex] != null && !(hashTable[currentIndex].isEmpty())){
+                    return true;
+                }
+                currentIndex++;
+            }
+            return false;
+        }
+
+        @Override
+        public Entry<K, V> next() {
+            if(bucketIterator != null && bucketIterator.hasNext()){
+                return bucketIterator.next();
+            }
+
+            if(hasNext()){
+                bucketIterator = hashTable[currentIndex].iterator();
+                currentIndex++;
+                return bucketIterator.next();
+            }
+
+            return null;
+        }
+
     }
 
- 
+
     //Methode um auf primzahleigenschaft zu prüfen
     private static boolean isPrime(int zahl){
         if(zahl <= 1){
