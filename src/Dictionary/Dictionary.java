@@ -99,4 +99,7 @@ public interface Dictionary<K,V> extends Iterable<Dictionary.Entry<K,V>> {
 			return retVal;
 		}
 	}
+
+    public class SortedArrayDictionary {
+    }
 }
