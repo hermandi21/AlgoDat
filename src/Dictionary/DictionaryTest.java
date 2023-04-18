@@ -112,9 +112,7 @@ public class DictionaryTest extends DictionaryTUI {
 		dict.insert("planen", "plan");
 		dict.insert("diskutieren", "discuss");
 		System.out.println(dict.size());
-		for (Dictionary.Entry<String, String> e : dict) {
-			System.out.println(e.getKey() + ": " + e.getValue() + " search: " + dict.search(e.getKey()));
-		}
+	 
 	}
 	
 }
