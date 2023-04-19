@@ -1,14 +1,9 @@
 package Dictionary;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Spliterator;
 import java.util.function.Consumer;
-
-import javax.management.ValueExp;
-import javax.xml.validation.Validator;
 
 public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictionary<K, V> {
 

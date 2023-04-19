@@ -1,13 +1,8 @@
 package Dictionary;
 
-import java.util.EmptyStackException;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
-import javax.lang.model.element.Element;
-import javax.xml.crypto.Data;
 
 public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V>{
 

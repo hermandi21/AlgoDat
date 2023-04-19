@@ -8,6 +8,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import javax.swing.JFileChooser;
+import Dictionary.SortedArrayDictionary;
+import Dictionary.HashDictionary;
 
 public class DictionaryTUI{
 
@@ -15,12 +17,11 @@ public class DictionaryTUI{
 
     //Konstruktor
     public DictionaryTUI(){
-
         dictionary = new TreeMap<>();
     }
 
     public static void main(String[] args) {
-        System.out.println("Wilkommen in der TUI für das Dictionary");
+        System.out.println("Willkommen in der TUI für das Dictionary");
         System.out.println("Bitte geben Sie ein Kommando ein: (create, r, p, s, i, d, exit)");
 
         Scanner scanner = new Scanner(System.in);
@@ -42,7 +43,7 @@ public class DictionaryTUI{
                     printDictionary();
                     break;
                 case "s":
-                    searchWord();
+                    searchWord(scanner);
                     break;
                 case "i":
                     insertWord(scanner);
@@ -55,7 +56,7 @@ public class DictionaryTUI{
                     System.out.println("Programm beendet");
                     break;
 
-                default: 
+                default:
                     System.out.println("Ungueltiges Kommando, bitte nochmal versuchen");
             }
         }
@@ -63,29 +64,32 @@ public class DictionaryTUI{
 
     private static void createDictionary(Scanner scanner) {
         System.out.println("Bitte geben Sie die gewünschte Implementierung an (SortedArrayDictionary, HashDictionary, BinaryTreeDictionary):");
-        String implementation = scanner.next();
+        String implementation = scanner.nextLine();
         switch (implementation.toLowerCase()) {
             case "sortedarraydictionary":
-                dictionary = new SortedArrayDictionary<>();
+                dictionary = new SortedArrayDictionary<String, String>();
                 System.out.println("Dictionary mit SortedArrayDictionary erstellt.");
                 break;
             case "hashdictionary":
-                dictionary = new HashDictionary<>(3);
+                dictionary = new HashDictionary<>();
                 System.out.println("Dictionary mit HashDictionary erstellt.");
                 break;
-             /* case "binarytreedictionary":
+            case "binarytreedictionary":
                 dictionary = new BinaryTreeDictionary<>();
                 System.out.println("Dictionary mit BinaryTreeDictionary erstellt.");
-                break;  */
+                break;
             default:
                 System.out.println("Ungültige Implementierung! Es wurde SortedArrayDictionary verwendet.");
                 dictionary = new SortedArrayDictionary<>();
                 break;
         }
     }
+    
+    
+    
 
     // Methode zum Hinzufügen von Wortpaaren
-    public void insertWord(Scanner scanner) {
+    public static void insertWord(Scanner scanner) {
         System.out.print("Deutsches Wort: ");
         String deutsch = scanner.nextLine();
         System.out.print("Englisches Wort: ");
