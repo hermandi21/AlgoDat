@@ -21,7 +21,6 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
 
     @Override
     public V search(K key) {
-
         int li = 0;
         int re = size - 1;
 
@@ -30,14 +29,14 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
 
             if (key.compareTo(data[m].getKey()) == 0) {
                 return data[m].getValue();
-            } else if (key.compareTo(data[m].getKey()) < 0) {   //Linke Haelfte weitersuchen
+            } else if (key.compareTo(data[m].getKey()) < 0) {
                 re = m - 1;
             } else {
-                li = m + 1;                                  //rechte Haelfte weitersuchen
+                li = m + 1;
             }
-
         }
-        return null;
+
+        return null; // falls key nicht gefunden wurde
     }
 
     private int searchKey(K key){
@@ -49,26 +48,30 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
         return -1;      //falls key nicht gefunden wurde
     }
 
-    @Override
     public V insert(K key, V value) {
         int i = searchKey(key);
 
-        if(i >= 0){     //Wenn i > 0 ist, d.h. es ist nicht negativ und somit hat der key einen Platz i data[]
-            //Wir überschreiben die vorhandene Postition
-            V r = data[i].getValue();
-            data[i].setValue(value);        //hier benutze ich setValue-Methode um den Wert zu ueberschreiben
-            return r;
+        if (i >= 0) {
+            // Eintrag bereits vorhanden, überschreiben
+            V oldValue = data[i].getValue();
+            data[i].setValue(value);
+            return oldValue;
+        } else {
+            // Neuen Eintrag anlegen
+            if (data.length == size) {
+                data = Arrays.copyOf(data, 2 * size);
+            }
+            int j = size - 1;
+            while (j >= 0 && key.compareTo(data[j].getKey()) < 0) {
+                data[j + 1] = data[j];
+                j--;
+            }
+            data[j + 1] = new Entry<>(key, value);
+            size++;
+            return null;
         }
-
-        //Falls es ein Neueintrag ist
-        if (data.length == size){
-            data = Arrays.copyOf(data, 2 * size);   //Verdoppeln des Arrayfeldes ist eine gaengige Methode bei vollgelaufenem Array
-        }
-
-        data[size] = new Entry<K, V>(key, value);
-        size++;
-        return null;
     }
+
 
     @Override
     public V remove(K key) {
@@ -78,13 +81,12 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
 
         //Datensatz loeschen und mit for Schleife wird jedes Elem
         V r = data[i].getValue();
-        for (int j = i; j < size - i; j++){
+        for (int j = i; j < size - 1; j++){
             data[j] = data[j+1];
+        }
 
         data[--size] = null;
         return r;
-        }
-        return null;
     }
 
 
@@ -106,7 +108,14 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
 
     private class SortedArrayDictionaryIterator implements Iterator<Entry<K, V>> {
 
-        private int currentIndex = 0;
+        private int currentIndex;
+
+        public SortedArrayDictionaryIterator() {
+            currentIndex = 0;
+            while (currentIndex < size && data[currentIndex] == null){
+                currentIndex++;
+            }
+        }
 
         @Override
         public boolean hasNext() {
@@ -120,9 +129,15 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
             }
             Entry<K, V> entry = data[currentIndex];
             currentIndex++;
+
+            while (currentIndex < size && data[currentIndex] == null){
+                currentIndex++;
+            }
+
             return entry;
         }
-
-
     }
+
+
 }
+
