@@ -100,6 +100,4 @@ public interface Dictionary<K,V> extends Iterable<Dictionary.Entry<K,V>> {
 		}
 	}
 
-    public class SortedArrayDictionary {
-    }
 }

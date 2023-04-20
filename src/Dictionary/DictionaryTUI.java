@@ -1,159 +1,198 @@
 
 package Dictionary;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import javax.swing.*;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Map.Entry;
-import javax.swing.JFileChooser;
-import Dictionary.SortedArrayDictionary;
-import Dictionary.HashDictionary;
 
 public class DictionaryTUI{
 
-    private static SortedMap<String, String> dictionary;
+    private static Dictionary<String, String> dictionary;
 
-    //Konstruktor
-    public DictionaryTUI(){
-        dictionary = new TreeMap<>();
-    }
+    public static void main(String[] args) throws Exception{
+        System.out.println("German - English Dictionary v.1.2\n");
+        Scanner sc = new Scanner(System.in);
 
-    public static void main(String[] args) {
         System.out.println("Willkommen in der TUI für das Dictionary");
-        System.out.println("Bitte geben Sie ein Kommando ein: (create, r, p, s, i, d, exit)");
+        System.out.println("Bitte geben Sie ein Kommando ein: (create, read, p, s, i, d, exit)");
 
-        Scanner scanner = new Scanner(System.in);
-        boolean exit = false;
-
-        while(!exit){
-            System.out.println("> ");
-            String command = scanner.next();    //command ist der eingegebene Befehl
-
-            switch(command.toLowerCase()){
-
-                case "create":
-                    createDictionary(scanner);
-                    break;
-                case "r":
-                    readFromFile(scanner);
-                    break;
-                case "p":
-                    printDictionary();
-                    break;
-                case "s":
-                    searchWord(scanner);
-                    break;
-                case "i":
-                    insertWord(scanner);
-                    break;
-                case "d":
-                    deleteWord(scanner);
-                    break;
-                case "exit":
-                    exit = true;
-                    System.out.println("Programm beendet");
-                    break;
-
-                default:
-                    System.out.println("Ungueltiges Kommando, bitte nochmal versuchen");
-            }
+        for(;;){
+            String in = sc.nextLine();
+            command(in);
         }
+        
     }
 
-    private static void createDictionary(Scanner scanner) {
-        System.out.println("Bitte geben Sie die gewünschte Implementierung an (SortedArrayDictionary, HashDictionary, BinaryTreeDictionary):");
-        String implementation = scanner.nextLine();
-        switch (implementation.toLowerCase()) {
-            case "sortedarraydictionary":
-                dictionary = new SortedArrayDictionary<String, String>();
-                System.out.println("Dictionary mit SortedArrayDictionary erstellt.");
+    private static void command(String com) throws Exception
+    {
+        String args[] = com.split(" ");
+
+        switch (args[0])
+        {
+            case "create":
+                createDictionary(args);
                 break;
-            case "hashdictionary":
-                dictionary = new HashDictionary<>();
-                System.out.println("Dictionary mit HashDictionary erstellt.");
+            case "read":
+                if (dictionaryExists())
+                    readFromFile(Arrays.copyOfRange(args, 1, args.length));
+                else
+                    System.out.println("Dictionary doesn't exist");
                 break;
-            case "binarytreedictionary":
-                dictionary = new BinaryTreeDictionary<>();
-                System.out.println("Dictionary mit BinaryTreeDictionary erstellt.");
+            case "p":
+                if (dictionaryExists())
+                    printDictionary();
+                else
+                    System.out.println("Dictionary doesn't exist");
+                break;
+            case "s":
+                if (dictionaryExists())
+                    searchWord(Arrays.copyOfRange(args, 1, args.length));
+                else
+                    System.out.println("Dictionary doesn't exist");
+                break;
+            case "i":
+                if (dictionaryExists())
+                    insertWord(Arrays.copyOfRange(args, 1, args.length));
+                else
+                    System.out.println("Dictionary doesn't exist");
+                break;
+            case "d":
+                if (dictionaryExists())
+                    deleteWord(Arrays.copyOfRange(args, 1, args.length));
+                else
+                    System.out.println("Dictionary doesn't exist");
+                break;
+            case "exit":
+                System.exit(0);
                 break;
             default:
-                System.out.println("Ungültige Implementierung! Es wurde SortedArrayDictionary verwendet.");
-                dictionary = new SortedArrayDictionary<>();
+                System.out.println("wrong command!");
                 break;
         }
     }
-    
-    
-    
 
-    // Methode zum Hinzufügen von Wortpaaren
-    public static void insertWord(Scanner scanner) {
-        System.out.print("Deutsches Wort: ");
-        String deutsch = scanner.nextLine();
-        System.out.print("Englisches Wort: ");
-        String englisch = scanner.nextLine();
-        dictionary.put(deutsch, englisch);
-        System.out.println("Wortpaar hinzugefügt: " + deutsch + " - " + englisch);
-    }
 
-    // Methode zum Löschen eines Wortpaars
-    public static void deleteWord(Scanner scanner) {
-        System.out.print("Deutsches Wort: ");
-        String deutsch = scanner.nextLine();
-        if (dictionary.containsKey(deutsch)) {
-            String englisch = dictionary.remove(deutsch);
-            System.out.println("Wortpaar gelöscht: " + deutsch + " - " + englisch);
-        } else {
-            System.out.println("Das deutsche Wort \"" + deutsch + "\" ist nicht im Wörterbuch enthalten.");
+
+    private static void deleteWord(String[] args)
+    {
+        if (args.length != 1)
+        {
+            System.out.println("wrong command!");
+            return;
         }
+
+        dictionary.remove(args[0]);
     }
 
-    // Methode zum Suchen eines englischen Wortes
-    public static void searchWord(Scanner scanner) {
-        System.out.print("Deutsches Wort: ");
-        String deutsch = scanner.nextLine();
-        if (dictionary.containsKey(deutsch)) {
-            String englisch = dictionary.get(deutsch);
-            System.out.println("Englisches Wort: " + englisch);
-        } else {
-            System.out.println("Das deutsche Wort \"" + deutsch + "\" ist nicht im Wörterbuch enthalten.");
+    private static void insertWord(String[] args)
+    {
+        if (args.length != 2)
+        {
+            System.out.println("wrong command!");
+            return;
         }
+
+        dictionary.insert(args[0], args[1]);
     }
 
-    // Methode zum Ausgeben aller Einträge des Wörterbuchs
-    public static void printDictionary() {
-        if (dictionary.isEmpty()) {
-            System.out.println("Das Wörterbuch ist leer.");
-        } else {
+    private static void searchWord(String[] args)
+    {
+        if (args.length != 1)
+        {
+            System.out.println("wrong command!");
+            return;
+        }
+
+        System.out.println(dictionary.search(args[0]));
+    }
+
+    //Methode um die einzelnen Wörter im dict zu drucken
+    private static void printDictionary()
+    {
+        if (dictionary != null) {
             System.out.println("Wörterbuch:");
-            for (Entry<String, String> entry : dictionary.entrySet()) {
-                System.out.println(entry.getKey() + " - " + entry.getValue());
+            for (Dictionary.Entry<String, String> entry : dictionary) {
+                System.out.println(entry.getKey() + " -> " + entry.getValue());
             }
+        } else {
+            System.out.println("Es existiert noch kein Wörterbuch. Bitte erstellen Sie zuerst ein Wörterbuch.");
         }
     }
 
-    // Methode zum Einlesen von Einträgen aus einer Datei
-    public static void readFromFile(Scanner scanner) {
-        System.out.print("Dateiname: ");
-        String dateiname = scanner.nextLine();
-        File file = new File(dateiname);
-        try {
-            Scanner fileScanner = new Scanner(file);
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] words = line.split(" - ");
-                if (words.length == 2) {
-                    dictionary.put(words[0], words[1]);
-                }
+    private static void readFromFile(String[] args) throws Exception {
+        if (args.length == 0 || args.length > 2) {
+            System.out.println("wrong command!");
+            return;
+        }
+
+        String filename = args.length == 2 ? args[1] : chooseFile();
+
+        BufferedReader reader = null;
+        String line;
+        int counter = 0;    //counter dazu da um abzubrechen nach bspw. 10 Einträgen
+
+        if (args.length == 1) { //args.length = 1, heißt es soll alle Einträge auslesen und ins dict schreiben
+
+            reader = new BufferedReader(new FileReader(new File(filename)));
+
+            while ((line = reader.readLine()) != null) {
+                String[] words = line.split(" ");
+                dictionary.insert(words[0], words[1]);
             }
-            fileScanner.close();
-            System.out.println("Einträge aus der Datei eingelesen: " + dictionary.size() + " Einträge");
-        } catch (FileNotFoundException e) {
-            System.out.println("Datei nicht gefunden: " + dateiname);
+        } else if (args.length == 2) {  //Wenn man den Dateinamen mit angibt soll das hier
+            int n = Integer.parseInt(args[0]);
+            reader = new BufferedReader(new FileReader(new File("/home/hermandi/Schreibtisch/hochschule/AIN3/ALDA/prog/aufgabe01/src/Dictionary/dtengl.txt")));
+
+            
+            while ((line = reader.readLine()) != null && counter < n) {
+                String[] words = line.split(" ");
+                dictionary.insert(words[0], words[1]);
+                counter++;
+            }
+        }
+        reader.close();
+    }
+
+    private static String chooseFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Choose a file");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            return selectedFile.getAbsolutePath();
+        } else {
+            System.out.println("No file selected.");
+            return null;
         }
     }
-    
+
+
+    private static void createDictionary(String[] args) throws Exception
+    {
+        if (args.length >= 2)
+        {
+            // to lower case, that command becomes case insensitive
+            String arg = args[1].toLowerCase();
+            if (arg.equals("hashdictionary")){
+                dictionary = new HashDictionary<String, String>(3);
+                System.out.println("HashDicitionary sucessfully created!");
+                return;
+            } else if (arg.equals("binarytreedictionary")){
+                //dictionary = new BinaryTreeDictionary();
+                System.out.println("BinaryTreeDictionary sucessfully created! \n");
+                return;
+            }
+        }
+        dictionary = new SortedArrayDictionary<String, String>();
+        System.out.println("SortedArrayDictionary successfully created!");
+
+    }
+
+    private static boolean dictionaryExists(){
+        return dictionary == null ? false : true;
+    }
+
 }
- 
