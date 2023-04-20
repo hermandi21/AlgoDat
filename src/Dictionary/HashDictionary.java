@@ -30,6 +30,7 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
 
     @Override
     public V search(K key) {
+        
         int hash = getHash(key);
 
         //Die DEF_CAP sagt darueber aus wie viele Buckets, also wie groß unsere hashTable ist

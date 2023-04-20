@@ -118,11 +118,32 @@ public class DictionaryTest  {
 			System.out.println(e.getKey() + ": " + e.getValue() + " search: " + dict.search(e.getKey()));
 		}
 
+
 		long end = System.nanoTime();
 		double elapsedTime = (double)(end-start)/1.0e06; // Zeit in msec
 
 		System.out.println("");
 		System.out.println("Benötigte Zeit in msec: " + elapsedTime);
+
+		System.out.println("---Test mit 8000 Suchanfragen---");
+		//Suchanfrage mit 8000 Worten
+		double anfang = System.nanoTime();
+		for(int i=0; i < 8000; i++){
+			dict.search("makrone");
+		}
+		double ende = System.nanoTime();
+		double vergangeneZeit = (double) (ende - anfang);
+		System.out.println("Der Test mit den 8000 Anfragen hat " + (double) vergangeneZeit/1.0e06 + " ms gedauert");
+
+		System.out.println("---Test mit 16000 Suchanfragen---");
+		//Suchanfrage mit 8000 Worten
+		double anfang2 = System.nanoTime();
+		for(int i=0; i < 16000; i++){
+			dict.search("makrone");
+		}
+		double ende2 = System.nanoTime();
+		double vergangeneZeit2 = (double) (ende2 - anfang2);
+		System.out.println("Der Test mit den 16000 Anfragen hat " + (double) vergangeneZeit2/1.0e06 + " ms gedauert");
 	}
 	
 }

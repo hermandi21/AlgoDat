@@ -1,6 +1,7 @@
 
 package Dictionary;
 
+import javax.sound.midi.Soundbank;
 import javax.swing.*;
 import java.io.*;
 import java.util.Arrays;
@@ -96,6 +97,9 @@ public class DictionaryTUI{
         dictionary.insert(args[0], args[1]);
     }
 
+    //Ich gehe hier davon aus wenn ich nach einem Wort suche welches
+    // nicht enthalten ist, durchsucht es dennoch die ganze Liste
+    //Somit habe ich den Zeitwert genommen bei einem nichte enthaltenen Wort
     private static void searchWord(String[] args)
     {
         if (args.length != 1)
@@ -103,8 +107,13 @@ public class DictionaryTUI{
             System.out.println("wrong command!");
             return;
         }
-
+        double time1 = System.nanoTime();
         System.out.println(dictionary.search(args[0]));
+        
+        
+        double time2 = System.nanoTime();
+        double diff = (double) (time2 - time1)/1.0e06;
+        System.out.println("Das Wort wurde in " + diff + " ms gefunden!");
     }
 
     //Methode um die einzelnen Wörter im dict zu drucken
@@ -131,11 +140,11 @@ public class DictionaryTUI{
         BufferedReader reader = null;
         String line;
         int counter = 0;    //counter dazu da um abzubrechen nach bspw. 10 Einträgen
+        double begin = System.nanoTime();
 
         if (args.length == 1) { //args.length = 1, heißt es soll alle Einträge auslesen und ins dict schreiben
 
             reader = new BufferedReader(new FileReader(new File(filename)));
-
             while ((line = reader.readLine()) != null) {
                 String[] words = line.split(" ");
                 dictionary.insert(words[0], words[1]);
@@ -151,6 +160,10 @@ public class DictionaryTUI{
                 counter++;
             }
         }
+        double end = System.nanoTime();
+        double diff = (double) (end-begin);
+        System.out.println(" Dictionary inserted items after " + (diff)/1.0e6 + "ms");
+        
         reader.close();
     }
 
@@ -172,13 +185,14 @@ public class DictionaryTUI{
 
     private static void createDictionary(String[] args) throws Exception
     {
+        
         if (args.length >= 2)
         {
             // to lower case, that command becomes case insensitive
             String arg = args[1].toLowerCase();
             if (arg.equals("hashdictionary")){
                 dictionary = new HashDictionary<String, String>(3);
-                System.out.println("HashDicitionary sucessfully created!");
+                System.out.println("HashDictionary sucessfully created!");
                 return;
             } else if (arg.equals("binarytreedictionary")){
                 //dictionary = new BinaryTreeDictionary();
@@ -188,7 +202,6 @@ public class DictionaryTUI{
         }
         dictionary = new SortedArrayDictionary<String, String>();
         System.out.println("SortedArrayDictionary successfully created!");
-
     }
 
     private static boolean dictionaryExists(){
