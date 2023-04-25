@@ -108,12 +108,14 @@ public V remove(K key) {
 
         @Override
         public boolean hasNext() {
-            if(bucketIterator != null && bucketIterator.hasNext()){
+            /*
+            if(bucketIterator != null && bucketIterator.hasNext()){ //macht nicht so viel Sinn, wenn ich hasNext mit hasNext prüfe
                 return true;
             }
+            */
 
             while(currentIndex < hashTable.length){
-                if(hashTable[currentIndex] != null && !(hashTable[currentIndex].isEmpty())){
+                if(hashTable[currentIndex] != null && !(hashTable[currentIndex].isEmpty())){    //solange die Zelle NotNull und NotEmtpy ist
                     return true;
                 }
                 currentIndex++;
@@ -123,12 +125,12 @@ public V remove(K key) {
 
         @Override
         public Entry<K, V> next() {
-            if(bucketIterator != null && bucketIterator.hasNext()){
+            if(bucketIterator != null && bucketIterator.hasNext()){ // Solange Iterator != null und ein nextElem vorhanden ist
                 return bucketIterator.next();
             }
 
             if(hasNext()){
-                bucketIterator = hashTable[currentIndex].iterator();
+                bucketIterator = hashTable[currentIndex].iterator();    //Hier nochmal drauf eingehen: next() Methode mit next() implementieren?!
                 currentIndex++;
                 return bucketIterator.next();
             }
@@ -170,14 +172,16 @@ public V remove(K key) {
     }
 
     private void resizeTable() {
-        int newCapacity = nextPrime(hashTable.length * 2);
-        List<Entry<K, V>>[] newTable = new LinkedList[newCapacity];
-        for (int i = 0; i < newCapacity; i++) {
-            newTable[i] = new LinkedList<>();
+        int newCapacity = nextPrime(hashTable.length * 2);  //nächstePrimzahl(31 * 2)
+
+        List<Entry<K, V>>[] newTable = new LinkedList[newCapacity]; //Mit newCapacity wird doppel so große LinkedList erstellt
+
+        for (int i = 0; i < newCapacity; i++) { //Für alle 62 Zellen, wird jeweils nochmal eine LinkedList erstellt
+            newTable[i] = new LinkedList<>();   // siehe Folie 2-16(Hashverfahren mit linear verkettete Liste)
         }
         for (List<Entry<K, V>> bucket : hashTable) {
-            for (Entry<K, V> entry : bucket) {
-                int hash = getHash(entry.getKey());
+            for (Entry<K, V> entry : bucket) {              //siehe Zeichnung auf Papier
+                int hash = getHash(entry.getKey());         // int hash gibt uns den Speicherort im einzelnen Bucket
                 List<Entry<K, V>> newBucket = newTable[hash];
                 newBucket.add(entry);
             }

@@ -151,7 +151,7 @@ public class DictionaryTUI{
             }
         } else if (args.length == 2) {  //Wenn man den Dateinamen mit angibt soll das hier
             int n = Integer.parseInt(args[0]);
-            reader = new BufferedReader(new FileReader(new File("/home/hermandi/Schreibtisch/hochschule/AIN3/ALDA/prog/aufgabe01/src/Dictionary/dtengl.txt")));
+            reader = new BufferedReader(new FileReader(new File("/home/hermandi/Schreibtisch/hochschule/AIN3/ALDA/prog/aufgabe01/src/Dictionary/16000.txt")));
 
             
             while ((line = reader.readLine()) != null && counter < n) {
