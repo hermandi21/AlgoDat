@@ -195,7 +195,7 @@ public class DictionaryTUI{
                 System.out.println("HashDictionary sucessfully created!");
                 return;
             } else if (arg.equals("binarytreedictionary")){
-                //dictionary = new BinaryTreeDictionary();
+                dictionary = new BinaryTreeDictionary<String, String>();
                 System.out.println("BinaryTreeDictionary sucessfully created! \n");
                 return;
             }
