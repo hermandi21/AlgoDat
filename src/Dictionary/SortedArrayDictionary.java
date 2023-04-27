@@ -112,9 +112,9 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
 
         public SortedArrayDictionaryIterator() {
             currentIndex = 0;
-            while (currentIndex < size && data[currentIndex] == null){  //Solange currentIndex kleiner als die Größe des Entry<K,V>-Arrays ist und
-                currentIndex++;                                         // und data[currentIndex] noch leer ist
-            }
+            //while (currentIndex < size && data[currentIndex] == null){  //Solange currentIndex kleiner als die Größe des Entry<K,V>-Arrays ist und
+              //  currentIndex++;                                         // und data[currentIndex] noch leer ist
+            //}
         }
 
         @Override
@@ -130,9 +130,11 @@ public class SortedArrayDictionary<K extends Comparable<K>, V> implements Dictio
             Entry<K, V> entry = data[currentIndex]; //Aktuelles element wird als entry gespeichert
             currentIndex++;
 
+            /*
             while (currentIndex < size && data[currentIndex] == null){
                 currentIndex++;
             }
+            */
 
             return entry;
         }
