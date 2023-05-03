@@ -1,9 +1,7 @@
 package Dictionary;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
+import java.util.Iterator;
 
 /**
  * Implementation of the Dictionary interface as AVL tree.
@@ -16,7 +14,7 @@ import java.util.NoSuchElementException;
  * @param <K> Key.
  * @param <V> Value.
  */
-public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements Dictionary<K,V>{
+public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements Dictionary<K,V> {
 
     static private class Node<K, V> {
         K key;
@@ -34,14 +32,16 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
             right = null;
             parent = null;
         }
+
+
     }
 
     //Anfangsdeklaration Wurzelknoten wird null gesetzt
     private Node<K,V> rootNode = null;
     public int size = 0;
-    
-    
-  
+
+
+
     //Hilfsmethode für search-Methode im BST
     public V search(K key){
         return searchR(key, rootNode);
@@ -87,7 +87,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         if(parentNode == null){
             parentNode = new Node<K,V>(key, value);
             size++;
-            oldValue = null;
+
         }
         else if (key.compareTo(parentNode.key) < 0){
             //Elternzeiger einsetzen
@@ -121,7 +121,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         return oldValue;
     }
 
-    // remove-Methode 
+    // remove-Methode
     private Node<K, V> removeR(K key, Node<K, V> parentNode) {
         //Es sind 4 Fälle zu unterscheiden: leer, wurzelknoten, 1 Kind, 2 Kind
 
@@ -131,18 +131,30 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         }
         else if(key.compareTo(parentNode.key) < 0){
             parentNode.left = removeR(key, parentNode.left);
+            if(parentNode.left != null){
+                parentNode.left.parent = parentNode;
+            }
         }
         else if (key.compareTo(parentNode.key) > 0){
             parentNode.right = removeR(key, parentNode.right);
+            if(parentNode.right != null){
+                parentNode.right.parent = parentNode;
+            }
         }
         //Hat 1 oder kein Kind, kritisch, denn wir müssen umabuen
         else if(parentNode.left == null || parentNode.right == null){
             //parentNode muss gelöscht bzw. umgesetzt werden
             oldValue = parentNode.value;
-            
-            //Macht Sinn, denn die Seite, welche einen Wert 
+
+
+            //Macht Sinn, denn die Seite, welche einen Wert
             // enthält wird zum neuen parentNode
+            Node<K,V> gp = parentNode.parent;
             parentNode = (parentNode.left != null) ? parentNode.left : parentNode.right;    //Ist das hier eine if()-Abfrage? Noch nie gesehen
+            if(parentNode != null){
+                parentNode.parent = gp;
+            }
+            size--;
         }
         else {
             //parentNode hat zwei Kinder und muss gelöscht werden bzw. umgeschrieben
@@ -150,9 +162,14 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
             //MinEntry ist ein Hilfsdatentyp für den Rückgabeparameter von getRemMinR
             MinEntry<K,V> min = new MinEntry<K,V>();
             parentNode.right = getRemMinR(parentNode.right, min);
+            if(parentNode.right != null){
+                parentNode.right.parent = parentNode;
+            }
             oldValue = parentNode.value;
             parentNode.key = min.key;
             parentNode.value = min.value;
+
+            size--;
         }
         parentNode = balance(parentNode); //Um AVL Struktur zu erhalten
         return parentNode;
@@ -188,7 +205,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     // Aktualisierung: Iteratoren in einem BST mit InOrder-Traversierung nicht effizient --> daher nicht machbar
         private Node<K,V> leftMostDescendant(Node<K,V> parentNode){
             assert parentNode != null;
-            while(parentNode != null){
+            while(parentNode.left != null){
                 parentNode = parentNode.left;
             }
             return parentNode;
@@ -211,8 +228,10 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         public class BTDIterator implements Iterator<Entry<K,V>> {
 
             public BTDIterator(){
-                parentNode = leftMostDescendant(rootNode);        
+                if(rootNode != null) parentNode = leftMostDescendant(rootNode);
             }
+
+
 
             // Erster Knoten:
             Node<K,V> parentNode = null;
@@ -234,7 +253,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
                 }
 
                 return new Entry<K,V>(pNode.key, pNode.value);
-            }   
+            }
         }
 
 
@@ -272,95 +291,116 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     public int size() {
         return size;
     }
-/* 
+
      // Ausbalancieren ab hier
      // erweiterung für AVL-Bäume
 
-     private int getHeight(Node<K,V> parentNode){
-        if(parentNode == null)
-            return -1; // leerer Teilbaum
-        else
-            return parentNode.height;
-    }
+     private int getHeight(Node<K,V> p){
+        if(p == null){
+            return -1;
+        }
+        else{
+            return p.height;
+        }
+     }
 
-    private int getBalance(Node<K,V>parentNode){
-        if(parentNode == null)
+    private int getBalance(Node<K,V> p){
+        if(p == null){
             return 0;
-        else
-            return getHeight(parentNode.right)-getHeight(parentNode.left);
-    }
-
-    
-
-    //Die AVL-Bedinung ist gebrochen wenn re-Teilbaum - li-Teilbaum 
-    private Node<K,V>balance(Node<K,V>parentNode){
-        if(parentNode==null)
-            return null;
-        parentNode.height = Math.max(getHeight(parentNode.left), getHeight(parentNode.right)) + 1; // hoehe aktualisieren
-        // Fall A
-        if(getBalance(parentNode) == -2){
-            // Fall A1
-            if(getBalance(parentNode.left)<=0)
-                parentNode= rotateRight(parentNode);
-            // Fall A2
-            else
-                parentNode = rotateLeftRight(parentNode);
         }
-        // Fall B
-        else if(getBalance(parentNode)== +2){
-            // Fall B1
-            if(getBalance(parentNode.right)>=0)
-                parentNode = rotateLeft(parentNode);
-            // Fall B2
-            else
-                parentNode = rotateRightLeft(parentNode);
+        else{
+            return getHeight(p.right) - getHeight(p.left);
         }
-        return parentNode;
     }
 
-    private Node<K,V> rotateRight(Node<K,V> parentNode){
-        assert parentNode.left != null;
-        Node<K,V> q = parentNode.left;
-        parentNode.left = q.right;
-        q.right = parentNode;
-        parentNode.height = Math.max(getHeight(parentNode.left), getHeight(parentNode.right)) + 1;
-        q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
-        return q;
-    }
+    private Node<K,V> rotateLeft(Node<K,V> p){
+        assert p.right != null;
+        Node<K,V> q = p.right;//Pro Zeile wird ein neur Zeiger gesetzt und immmer
+        p.right = q.left;   // der Zeiger wieder aufgenommen, welcher in der vorherigen Zeile benutzt wurde
 
-    // ***************** // ü //
-    private Node<K,V> rotateLeft(Node<K,V> parentNode){
-        assert parentNode.right != null;
-        Node<K,V> q = parentNode.right;
-        parentNode.right = q.left;
-        if(parentNode.right != null)
-            parentNode.right.parent = parentNode;
-        q.left = parentNode;
+        //Veränderter Part
+        if(p.right != null)
+            p.right.parent = p;
+        q.left = p;
         if(q.left != null)
             q.left.parent = q;
-        parentNode.height = Math.max(getHeight(parentNode.left), getHeight(parentNode.right)) + 1;
-        q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
+
+        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+        q.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+
+        return q;
+
+    }
+
+
+    private Node<K,V> rotateRight(Node<K,V> p){
+        assert p.left != null;
+        Node<K,V> q = p.left;
+        p.left = q.right;
+        q.right = p;
+        p.height = Math.max(getHeight(p.left),getHeight(p.right)) +1;
+        q.height = Math.max(getHeight(q.left), getHeight(q.right)) +1;
+
         return q;
     }
 
-    private Node <K,V> rotateLeftRight(Node<K,V> parentNode){
-        assert parentNode.left != null;
-        parentNode.left = rotateLeft(parentNode.left);
-        if(parentNode.left != null){
-            parentNode.left.parent = parentNode;
+    //rotateLeftRight ist eine Kombination aus zwei vorherigen Methoden
+    private Node<K,V> rotateLeftRight(Node<K,V> p){
+        assert p.left != null;
+        p.left = rotateLeft(p.left);
+
+        //Neu
+        if(p.left != null){
+            p.left.parent = p;
         }
-        return rotateRight(parentNode);
+
+        return rotateRight(p);
+
     }
 
-    private Node<K,V> rotateRightLeft(Node<K,V> parentNode){
-        assert parentNode.right != null;
-        parentNode.right = rotateRight(parentNode.right);
-        if(parentNode.right != null){
-            parentNode.right.parent = parentNode;
+    private Node<K,V> rotateRightLeft(Node<K,V> p){
+        assert p.right != null;
+        p.right = rotateRight(p.right);
+
+        if(p.right != null){
+            p.right.parent = p;
         }
-        return rotateLeft(parentNode);
+
+        return rotateLeft(p);
     }
-    */
-    
-        
+
+
+    //Mit der balanceMethode moechten wir den Binären Suchbaum auf eine
+    // maximale Hoehe von 2 bringen, mit Hilfe der AVL-Baum Eigenschaft
+    private Node<K,V> balance(Node<K,V> p){
+        if(p == null){
+            return null;
+        }
+        p.height = Math.max(getHeight(p.left), getHeight(p.right))+1;//Höhe appktualisieren
+
+        //ifAbfrage nach der aktuellen p höhe
+        if(getBalance(p) == -2){
+            if(getBalance(p.left)<= 0){
+                //Fall A1
+                p = rotateRight(p);
+            }
+            else{
+                //Fall A2
+                p = rotateLeftRight(p);
+            }
+        }
+        else if(getBalance(p) == +2){
+            //Fall B1
+            if(getBalance(p.right) >= 0){
+                p = rotateLeft(p);
+            }
+            else{
+                p = rotateRightLeft(p);
+            }
+        }
+
+        return p;
+    }
+
+
 }
