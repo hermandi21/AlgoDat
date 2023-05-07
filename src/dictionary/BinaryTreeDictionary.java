@@ -6,11 +6,11 @@ import java.util.Iterator;
 /**
  * Implementation of the Dictionary interface as AVL tree.
  * <p>
- * The entries are ordered using their natural ordering on the keys, 
- * or by a Comparator provided at set creation time, depending on which constructor is used. 
+ * The entries are ordered using their natural ordering on the keys,
+ * or by a Comparator provided at set creation time, depending on which constructor is used.
  * <p>
  * An iterator for this dictionary is implemented by using the parent node reference.
- * 
+ *
  * @param <K> Key.
  * @param <V> Value.
  */
@@ -84,25 +84,26 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         if(parentNode == null){
             parentNode = new Node<>(key, value);
             size++;
-
+            oldValue = null;
         }
         else if (key.compareTo(parentNode.key) < 0){
+            parentNode.left = insertR(key, value, parentNode.left); //Diese Zeile muss unbedingt vor die nachfolgende if(()Abfrage weil sonst nicht richtig eingefügt wird
             //Elternzeiger einsetzen
             if(parentNode.left != null){
                 parentNode.left.parent = parentNode;
             }
-            //----------------------
-            parentNode.left = insertR(key, value, parentNode.left);
+            //parentNode.left = insertR(key, value, parentNode.left);
         }
         else if(key.compareTo(parentNode.key) > 0){
+            parentNode.right = insertR(key, value, parentNode.right);
             //Elternknoten einsetzen
             if(parentNode.right != null){
                 parentNode.right.parent = parentNode;
             }
-            //----------------------
-            parentNode.right = insertR(key, value, parentNode.right);
+            //parentNode.left = insertR(key, value, parentNode.left); ///Diese Zeile muss unbedingt vor die nachfolgende if(()Abfrage weil sonst nicht richtig eingefügt wird
         }
-        else {  // Ansonsten Fall: Wenn der Schlüssel bereits vorhanden ist
+        else {
+            // Ansonsten Fall: Wenn der Schlüssel bereits vorhanden ist
             oldValue = parentNode.value;
             parentNode.value = value;
         }
@@ -115,6 +116,9 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     //Hilfsmethode zum entfernen eines K,V- Paares
     public V remove(K key){
         rootNode = removeR(key, rootNode);
+        if(rootNode != null){
+            rootNode.parent = null;
+        }
         return oldValue;
     }
 
@@ -124,8 +128,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
 
         if(parentNode == null){
             oldValue = null;
-            //return null;
-        }
+            }
         else if(key.compareTo(parentNode.key) < 0){
             parentNode.left = removeR(key, parentNode.left);
             if(parentNode.left != null){
@@ -319,11 +322,10 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         if(p.right != null)
             p.right.parent = p;
         q.left = p;
-        q.left.parent = q;
-
+        if(q.left != null) // neu eingefügt
+            q.left.parent = q;
         p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
-        q.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
-
+        q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
         return q;
 
     }
@@ -344,7 +346,9 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     private Node<K,V> rotateLeftRight(Node<K,V> p){
         assert p.left != null;
         p.left = rotateLeft(p.left);
-
+        if(p.left != null){
+        p.left.parent = p;
+        }
         return rotateRight(p);
 
     }
@@ -352,40 +356,30 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     private Node<K,V> rotateRightLeft(Node<K,V> p){
         assert p.right != null;
         p.right = rotateRight(p.right);
-
         return rotateLeft(p);
     }
 
 
     //Mit der balanceMethode moechten wir den Binären Suchbaum auf eine
     // maximale Hoehe von 2 bringen, mit Hilfe der AVL-Baum Eigenschaft
-    private Node<K,V> balance(Node<K,V> p){
-        if(p == null){
+    private Node<K,V> balance(Node<K,V> p) {
+        if (p== null) {
             return null;
         }
-        p.height = Math.max(getHeight(p.left), getHeight(p.right))+1;//Höhe appktualisieren
-
-        //ifAbfrage nach der aktuellen p höhe
-        if(getBalance(p) == -2){
-            if(getBalance(p.left)<= 0){
-                //Fall A1
+        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+        if(getBalance(p) == -2) {
+            if(getBalance(p.left) <= 0) {
                 p = rotateRight(p);
-            }
-            else{
-                //Fall A2
+            } else {
                 p = rotateLeftRight(p);
             }
-        }
-        else if(getBalance(p) == 2){
-            //Fall B1
-            if(getBalance(p.right) >= 0){
+        } else if (getBalance(p) == +2) {
+            if (getBalance(p.right) >= 0) {
                 p = rotateLeft(p);
-            }
-            else{
+            } else {
                 p = rotateRightLeft(p);
             }
         }
-
         return p;
     }
 
