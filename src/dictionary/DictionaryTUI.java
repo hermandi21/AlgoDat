@@ -17,7 +17,7 @@ public class DictionaryTUI{
         System.out.println("Willkommen in der TUI für das Dictionary");
         System.out.println("Bitte geben Sie ein Kommando ein: (create, read, p, s, i, d, exit)");
 
-        for(;;){
+        while (true){
             String in = sc.nextLine();
             command(in);
         }
@@ -113,7 +113,7 @@ public class DictionaryTUI{
         
         
         double time2 = System.nanoTime();
-        double diff = (double) (time2 - time1)/1.0e06;
+        double diff =  (time2 - time1)/1.0e06;
         System.out.println("Das Wort wurde in " + diff + " ms gefunden!");
     }
 
