@@ -34,10 +34,12 @@ public class DictionaryTUI{
                 createDictionary(args);
                 break;
             case "read":
-                if (dictionaryExists())
-                    readFromFile(Arrays.copyOfRange(args, 1, args.length));
+                if (args.length == 1)
+                    readFromFile(0);
+                else if (args.length >= 2)
+                    readFromFile(Integer.parseInt(args[1]));
                 else
-                    System.out.println("Dictionary doesn't exist");
+                    System.out.println("Eingabe im Format r [n] Dateiname");
                 break;
             case "p":
                 if (dictionaryExists())
@@ -128,43 +130,52 @@ public class DictionaryTUI{
         }
     }
 
-    private static void readFromFile(String[] args) throws Exception {
-        if (args.length == 0 || args.length > 2) {
-            System.out.println("wrong command!");
-            return;
-        }
+        private static void readFromFile(int n) {
+            // JFileChooser-Objekt erstellen
+            JFileChooser chooser = new JFileChooser();
 
-        String filename = args.length == 2 ? args[1] : chooseFile();
+            int rueckgabeWert = chooser.showOpenDialog(null);
 
-        BufferedReader reader = null;
-        String line;
-        int counter = 0;    //counter dazu da um abzubrechen nach bspw. 10 Einträgen
-        double begin = System.nanoTime();
-
-        if (args.length == 1) { //args.length = 1, heißt es soll alle Einträge auslesen und ins dict schreiben
-
-            reader = new BufferedReader(new FileReader(filename));
-            while ((line = reader.readLine()) != null) {
-                String[] words = line.split(" ");
-                dictionary.insert(words[0], words[1]);
+            /* Abfrage, ob auf "Öffnen" geklickt wurde */
+            if(rueckgabeWert == JFileChooser.APPROVE_OPTION) {
+                try {
+                    long startTime = System.nanoTime();
+                    BufferedReader reader = new BufferedReader(new FileReader(chooser.getSelectedFile()));
+                    if (n == 0) {
+                        while(true) {
+                            String line = reader.readLine();
+                            if (line != null) {
+                                String[] lineArr = line.split(" ");
+                                dictionary.insert(lineArr[0], lineArr[1]);
+                                continue;
+                            }
+                            break;
+                        }
+                        long endTime = System.nanoTime();
+                        long timeTaken = (endTime - startTime) / 1000000;
+                        System.out.println("Datei eingelesen; Dauer: " + timeTaken + "ms");
+                    } else {
+                        for (int i = 0; i < n; i++) {
+                            String line = reader.readLine();
+                            if (line != null) {
+                                String[] lineArr = line.split(" ");
+                                dictionary.insert(lineArr[0], lineArr[1]);
+                                continue;
+                            }
+                            break;
+                        }
+                        long endTime = System.nanoTime();
+                        long timeTaken = (endTime - startTime) / 1000000;
+                        System.out.println("Datei eingelesen; Dauer: " + timeTaken + "ms");
+                    }
+                    //System.out.println(dictionary);
+                } catch (FileNotFoundException fe) {
+                    System.out.println("File not found");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } else if (args.length == 2) {  //Wenn man den Dateinamen mit angibt soll das hier
-            int n = Integer.parseInt(args[0]);
-            reader = new BufferedReader(new FileReader(new File("/home/hermandi/Schreibtisch/hochschule/AIN3/ALDA/prog/aufgabe01/src/Dictionary/16000.txt")));
-
-            
-            while ((line = reader.readLine()) != null && counter < n) {
-                String[] words = line.split(" ");
-                dictionary.insert(words[0], words[1]);
-                counter++;
-            }
         }
-        double end = System.nanoTime();
-        double diff = (end-begin);
-        System.out.println(" Dictionary inserted items after " + (diff)/1.0e6 + "ms");
-        
-        reader.close();
-    }
 
     private static String chooseFile() {
         JFileChooser fileChooser = new JFileChooser();
