@@ -1,4 +1,4 @@
-package Dictionary;
+package dictionary;
 
 import java.util.EmptyStackException;
 import java.util.Hashtable;

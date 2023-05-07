@@ -1,7 +1,6 @@
 
-package Dictionary;
+package dictionary;
 
-import javax.sound.midi.Soundbank;
 import javax.swing.*;
 import java.io.*;
 import java.util.Arrays;
@@ -27,7 +26,7 @@ public class DictionaryTUI{
 
     private static void command(String com) throws Exception
     {
-        String args[] = com.split(" ");
+        String[] args = com.split(" ");
 
         switch (args[0])
         {
@@ -144,7 +143,7 @@ public class DictionaryTUI{
 
         if (args.length == 1) { //args.length = 1, heißt es soll alle Einträge auslesen und ins dict schreiben
 
-            reader = new BufferedReader(new FileReader(new File(filename)));
+            reader = new BufferedReader(new FileReader(filename));
             while ((line = reader.readLine()) != null) {
                 String[] words = line.split(" ");
                 dictionary.insert(words[0], words[1]);
@@ -161,7 +160,7 @@ public class DictionaryTUI{
             }
         }
         double end = System.nanoTime();
-        double diff = (double) (end-begin);
+        double diff = (end-begin);
         System.out.println(" Dictionary inserted items after " + (diff)/1.0e6 + "ms");
         
         reader.close();
@@ -191,21 +190,21 @@ public class DictionaryTUI{
             // to lower case, that command becomes case insensitive
             String arg = args[1].toLowerCase();
             if (arg.equals("hashdictionary")){
-                dictionary = new HashDictionary<String, String>(3);
+                dictionary = new HashDictionary<>(3);
                 System.out.println("HashDictionary sucessfully created!");
                 return;
             } else if (arg.equals("binarytreedictionary")){
-                dictionary = new BinaryTreeDictionary<String, String>();
+                dictionary = new BinaryTreeDictionary<>();
                 System.out.println("BinaryTreeDictionary sucessfully created! \n");
                 return;
             }
         }
-        dictionary = new SortedArrayDictionary<String, String>();
+        dictionary = new SortedArrayDictionary<>();
         System.out.println("SortedArrayDictionary successfully created!");
     }
 
     private static boolean dictionaryExists(){
-        return dictionary == null ? false : true;
+        return dictionary != null;
     }
 
 }

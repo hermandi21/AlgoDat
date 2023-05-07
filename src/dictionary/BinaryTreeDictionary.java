@@ -1,4 +1,4 @@
-package Dictionary;
+package dictionary;
 
 
 import java.util.Iterator;
@@ -49,9 +49,6 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
 
     // rekursive Search-Methode(Folie 3-10)
     /**
-     * @param key
-     * @param parentNode
-     * @return
      */
     private V searchR(K key, Node<K,V> parentNode){
         //Sicherheitsabfrage
@@ -85,7 +82,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     private Node<K,V> insertR(K key, V value, Node<K,V> parentNode){
         //Prüfe ob Baum vorhanden ist
         if(parentNode == null){
-            parentNode = new Node<K,V>(key, value);
+            parentNode = new Node<>(key, value);
             size++;
 
         }
@@ -160,7 +157,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
             //parentNode hat zwei Kinder und muss gelöscht werden bzw. umgeschrieben
 
             //MinEntry ist ein Hilfsdatentyp für den Rückgabeparameter von getRemMinR
-            MinEntry<K,V> min = new MinEntry<K,V>();
+            MinEntry<K,V> min = new MinEntry<>();
             parentNode.right = getRemMinR(parentNode.right, min);
             if(parentNode.right != null){
                 parentNode.right.parent = parentNode;
@@ -252,7 +249,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
                     parentNode = parentOfLeftMostAncestor(parentNode);
                 }
 
-                return new Entry<K,V>(pNode.key, pNode.value);
+                return new Entry<>(pNode.key, pNode.value);
             }
         }
 
@@ -322,8 +319,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         if(p.right != null)
             p.right.parent = p;
         q.left = p;
-        if(q.left != null)
-            q.left.parent = q;
+        q.left.parent = q;
 
         p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
         q.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
@@ -349,11 +345,6 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
         assert p.left != null;
         p.left = rotateLeft(p.left);
 
-        //Neu
-        if(p.left != null){
-            p.left.parent = p;
-        }
-
         return rotateRight(p);
 
     }
@@ -361,10 +352,6 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
     private Node<K,V> rotateRightLeft(Node<K,V> p){
         assert p.right != null;
         p.right = rotateRight(p.right);
-
-        if(p.right != null){
-            p.right.parent = p;
-        }
 
         return rotateLeft(p);
     }
@@ -389,7 +376,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements 
                 p = rotateLeftRight(p);
             }
         }
-        else if(getBalance(p) == +2){
+        else if(getBalance(p) == 2){
             //Fall B1
             if(getBalance(p.right) >= 0){
                 p = rotateLeft(p);

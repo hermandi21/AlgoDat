@@ -1,4 +1,4 @@
-package Dictionary;
+package dictionary;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,7 +15,7 @@ public class HashDictionary<K extends Comparable<K>,V> implements Dictionary<K,V
     // Konstruktor
     // Dieser erstellt eine linear verkettete Liste der Größe 16, was keine Primzahl ist
     @SuppressWarnings("unchecked")
-    public HashDictionary(int Anfangsgroesse){
+    public HashDictionary(int anfangsgroesse){
         size = 0;
         hashTable = new LinkedList[DEF_CAPACITY];
 
@@ -59,7 +59,7 @@ public V insert(K key, V value) {
     }
 
     // Fall 2: Eintrag existiert nicht, muss noch eingefügt werden
-    hashTable[hash].add(new Entry<K,V>(key, value));
+    hashTable[hash].add(new Entry<>(key, value));
     size++;
 
     if(size > LOAD_FACTOR * hashTable.length){
