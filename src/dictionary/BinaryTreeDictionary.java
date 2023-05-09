@@ -3,385 +3,298 @@ package dictionary;
 
 import java.util.Iterator;
 
-/**
- * Implementation of the Dictionary interface as AVL tree.
- * <p>
- * The entries are ordered using their natural ordering on the keys,
- * or by a Comparator provided at set creation time, depending on which constructor is used.
- * <p>
- * An iterator for this dictionary is implemented by using the parent node reference.
- *
- * @param <K> Key.
- * @param <V> Value.
- */
-public class BinaryTreeDictionary<K extends Comparable<? super K>,V> implements Dictionary<K,V> {
 
-    static private class Node<K, V> {
-        K key;
-        V value;
-        int height;
-        Node<K, V> left;
-        Node<K, V> right;
-        Node<K, V> parent;
-
-        Node(K k, V v) {
-            key = k;
-            value = v;
-            height = 0;
-            left = null;
-            right = null;
-            parent = null;
-        }
-
-
-    }
-
-    //Anfangsdeklaration Wurzelknoten wird null gesetzt
-    private Node<K,V> rootNode = null;
-    public int size = 0;
-
-
-
-    //Hilfsmethode für search-Methode im BST
-    public V search(K key){
-        return searchR(key, rootNode);
-    }
-
-    // rekursive Search-Methode(Folie 3-10)
     /**
+     * Implementation of the Dictionary interface as AVL tree.
+     * <p>
+     * The entries are ordered using their natural ordering on the keys,
+     * or by a Comparator provided at set creation time, depending on which constructor is used.
+     * <p>
+     * An iterator for this Aufgabenblatt1.dictionary is implemented by using the parent node reference.
+     *
+     * @param <K> Key.
+     * @param <V> Value.
      */
-    private V searchR(K key, Node<K,V> parentNode){
-        //Sicherheitsabfrage
-        if(parentNode == null){
-            return null;
-        }
-        else if (key.compareTo(parentNode.key) < 0) {   // key < parentNode --> links gehen
-            return searchR(key, parentNode.left);
-        }
-        else if (key.compareTo(parentNode.key) > 0) {   // key > parentNode --> rechts gehen
-            return searchR(key, parentNode.right);
-        }
-        else
-            return parentNode.value;
+    public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements Dictionary<K, V> {
 
-    }
+        static private class Node<K, V> {
+            K key;
+            V value;
+            int height;
+            Node<K, V> left;
+            Node<K, V> right;
+            Node<K, V> parent;
 
-
-    private V oldValue;//Rueckgabeparameter
-
-    //Aufrufmethode für insertR
-    public V insert(K key, V value){
-        rootNode = insertR(key, value, rootNode);
-        //Parent-Zeiger einsetzen
-        if(rootNode != null){
-            rootNode.parent = null; //Ich möchte dass der Elternzeiger auf null gesetzt wird
-        }
-        return oldValue;
-    }
-    //rekursive InsertMethode
-    private Node<K,V> insertR(K key, V value, Node<K,V> parentNode){
-        //Prüfe ob Baum vorhanden ist
-        if(parentNode == null){
-            parentNode = new Node<>(key, value);
-            size++;
-            oldValue = null;
-        }
-        else if (key.compareTo(parentNode.key) < 0){
-            parentNode.left = insertR(key, value, parentNode.left); //Diese Zeile muss unbedingt vor die nachfolgende if(()Abfrage weil sonst nicht richtig eingefügt wird
-            //Elternzeiger einsetzen
-            if(parentNode.left != null){
-                parentNode.left.parent = parentNode;
-            }
-            //parentNode.left = insertR(key, value, parentNode.left);
-        }
-        else if(key.compareTo(parentNode.key) > 0){
-            parentNode.right = insertR(key, value, parentNode.right);
-            //Elternknoten einsetzen
-            if(parentNode.right != null){
-                parentNode.right.parent = parentNode;
-            }
-            //parentNode.left = insertR(key, value, parentNode.left); ///Diese Zeile muss unbedingt vor die nachfolgende if(()Abfrage weil sonst nicht richtig eingefügt wird
-        }
-        else {
-            // Ansonsten Fall: Wenn der Schlüssel bereits vorhanden ist
-            oldValue = parentNode.value;
-            parentNode.value = value;
-        }
-        parentNode = balance(parentNode); //Um AVL Struktur zu erhalten
-        return parentNode;
-
-    }
-
-
-    //Hilfsmethode zum entfernen eines K,V- Paares
-    public V remove(K key){
-        rootNode = removeR(key, rootNode);
-        if(rootNode != null){
-            rootNode.parent = null;
-        }
-        return oldValue;
-    }
-
-    // remove-Methode
-    private Node<K, V> removeR(K key, Node<K, V> parentNode) {
-        //Es sind 4 Fälle zu unterscheiden: leer, wurzelknoten, 1 Kind, 2 Kind
-
-        if(parentNode == null){
-            oldValue = null;
-            }
-        else if(key.compareTo(parentNode.key) < 0){
-            parentNode.left = removeR(key, parentNode.left);
-            if(parentNode.left != null){
-                parentNode.left.parent = parentNode;
+            Node(K k, V v) {
+                key = k;
+                value = v;
+                height = 0;
+                left = null;
+                right = null;
+                parent = null;
             }
         }
-        else if (key.compareTo(parentNode.key) > 0){
-            parentNode.right = removeR(key, parentNode.right);
-            if(parentNode.right != null){
-                parentNode.right.parent = parentNode;
+
+        private static class MinEntry<K, V> {
+            private K key;
+            private V value;
+        }
+
+        private Node<K, V> root = null;
+        private int size = 0;
+        private V oldValue;
+
+        private int getHeight(Node<K,V> p) {
+            if (p == null) {
+                return -1;
+            } else {
+                return p.height;
             }
         }
-        //Hat 1 oder kein Kind, kritisch, denn wir müssen umabuen
-        else if(parentNode.left == null || parentNode.right == null){
-            //parentNode muss gelöscht bzw. umgesetzt werden
-            oldValue = parentNode.value;
 
-
-            //Macht Sinn, denn die Seite, welche einen Wert
-            // enthält wird zum neuen parentNode
-            Node<K,V> gp = parentNode.parent;
-            parentNode = (parentNode.left != null) ? parentNode.left : parentNode.right;    //Ist das hier eine if()-Abfrage? Noch nie gesehen
-            if(parentNode != null){
-                parentNode.parent = gp;
+        private int getBalance(Node<K,V> p) {
+            if (p == null) {
+                return 0;
+            } else {
+                return getHeight(p.right) - getHeight(p.left);
             }
-            size--;
         }
-        else {
-            //parentNode hat zwei Kinder und muss gelöscht werden bzw. umgeschrieben
 
-            //MinEntry ist ein Hilfsdatentyp für den Rückgabeparameter von getRemMinR
-            MinEntry<K,V> min = new MinEntry<>();
-            parentNode.right = getRemMinR(parentNode.right, min);
-            if(parentNode.right != null){
-                parentNode.right.parent = parentNode;
+        private Node<K,V> balance(Node<K,V> p) {
+            if (p== null) {
+                return null;
             }
-            oldValue = parentNode.value;
-            parentNode.key = min.key;
-            parentNode.value = min.value;
-
-            size--;
-        }
-        parentNode = balance(parentNode); //Um AVL Struktur zu erhalten
-        return parentNode;
-
-    }
-
-    //Diese Methode sucht bei 2 Kindern, den minimalen Knoten der Dreien.
-    //Löscht den kleinsten Wert und hängt den Elternknoten korrekt um.
-    // Ausserdem liefert Daten des gelöschten Knotens über MinEntry zurück.
-    private Node<K,V> getRemMinR(Node<K,V> parentNode, MinEntry<K,V> min){
-        //Annahme parentNode != null
-        assert parentNode != null;
-        if(parentNode.left == null){
-            min.key = parentNode.key;
-            min.value = parentNode.value;
-            parentNode = parentNode.right;
-        }
-        else {
-            parentNode.left = getRemMinR(parentNode.left, min);
-        }
-        parentNode = balance(parentNode); //Um AVL Struktur zu erhalten
-        return parentNode;
-
-    }
-
-
-    private static class MinEntry<K, V>{
-        private K key;
-        private V value;
-    }
-
-    // Jetzt noch den Iterator für den BST
-    // Aktualisierung: Iteratoren in einem BST mit InOrder-Traversierung nicht effizient --> daher nicht machbar
-        private Node<K,V> leftMostDescendant(Node<K,V> parentNode){
-            assert parentNode != null;
-            while(parentNode.left != null){
-                parentNode = parentNode.left;
+            p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+            if(getBalance(p) == -2) {
+                if(getBalance(p.left) <= 0) {
+                    p = rotateRight(p);
+                } else {
+                    p = rotateLeftRight(p);
+                }
+            } else if (getBalance(p) == +2) {
+                if (getBalance(p.right) >= 0) {
+                    p = rotateLeft(p);
+                } else {
+                    p = rotateRightLeft(p);
+                }
             }
-            return parentNode;
+            return p;
         }
 
-        private Node<K,V> parentOfLeftMostAncestor(Node<K,V> parentNode){
-            //prüfe auf Leerheit
-            assert parentNode != null;
-            while(parentNode.parent != null && parentNode.parent.right == parentNode){
-                parentNode = parentNode.parent;
+        private Node<K,V> rotateRight(Node<K,V> p) {
+            assert p.left != null;
+            Node<K,V> q = p.left;
+            p.left = q.right;
+
+            if (p.left != null)
+                p.left.parent = p;
+
+            q.right = p;
+
+            if (q.right != null)
+                q.right.parent = q;
+
+            p.height = Math.max(getHeight(p.left), getHeight(p.right)) +1;
+            q.height = Math.max(getHeight(q.left), getHeight(q.right)) +1;
+            return q;
+        }
+
+        private Node<K,V> rotateLeft(Node<K,V> p) {
+            assert p.right != null;
+            Node<K,V> q = p.right;
+            p.right = q.left;
+
+            if (p.right != null)
+                p.right.parent = p;
+
+            q.left = p;
+
+            if (q.left != null)
+                q.left.parent = q;
+
+            p.height = Math.max(getHeight(p.right), getHeight(p.left)) +1;
+            q.height = Math.max(getHeight(q.right), getHeight(q.left)) +1;
+            return q;
+        }
+
+        private Node<K,V> rotateLeftRight(Node<K,V> p) {
+            assert p.left != null;
+            p.left = rotateLeft(p.left);
+            return rotateRight(p);
+        }
+
+        private Node<K,V> rotateRightLeft(Node<K,V> p) {
+            assert p.right != null;
+            p.right = rotateRight(p.right);
+            return rotateLeft(p);
+        }
+
+        @Override
+        public V insert(K key, V value) {
+            root = insertR(key, value, root);
+            if (root != null) {
+                root.parent = null;
             }
-            return parentNode.parent;   //kann auch null sein
+            return oldValue;
         }
 
-        @Override()
+        private Node<K, V> insertR(K key, V value, Node<K, V> p) {
+            if (p == null) {
+                p = new Node<>(key, value);
+                oldValue = null;
+                size++;
+            } else if (key.compareTo(p.key) < 0) {
+                p.left = insertR(key, value, p.left);
+                if (p.left != null) {
+                    p.left.parent = p;
+                }
+            } else if (key.compareTo(p.key) > 0) {
+                p.right = insertR(key, value, p.right);
+                if (p.right != null) {
+                    p.right.parent = p;
+                }
+            } else {
+                oldValue = p.value;
+                p.value = value;
+            }
+            p = balance(p);
+            return p;
+        }
+
+        @Override
+        public V search(K key) {
+            return searchR(key, root);
+        }
+
+        private V searchR(K key, Node<K, V> p) {
+            if (p == null)
+                return null;
+            else if (key.compareTo(p.key) < 0)
+                return searchR(key, p.left);
+            else if (key.compareTo(p.key) > 0)
+                return searchR(key, p.right);
+            else
+                return p.value;
+        }
+
+        @Override
+        public V remove(K key) {
+            root = removeR(key, root);
+            if (root != null) {
+                root.parent = null;
+            }
+            return oldValue;
+        }
+
+        private Node<K, V> removeR(K key, Node<K, V> p) {
+            if (p == null) {
+                oldValue = null;
+            } else if (key.compareTo(p.key) < 0) {
+                p.left = removeR(key, p.left);
+            } else if (key.compareTo(p.key) > 0) {
+                p.right = removeR(key, p.right);
+            } else if (p.left == null || p.right == null) {
+                oldValue = p.value;
+                p = (p.left != null) ? p.left : p.right;
+                size--;
+            } else {
+                MinEntry<K, V> min = new MinEntry<>();
+                p.right = getRemMinR(p.right, min);
+                oldValue = p.value;
+                p.key = min.key;
+                p.value = min.value;
+                size--;
+            }
+            p = balance(p);
+            return p;
+        }
+
+        private Node<K, V> getRemMinR(Node<K, V> p, MinEntry<K, V> min) {
+            assert p != null;
+            if (p.left == null) {
+                min.key = p.key;
+                min.value = p.value;
+                p = p.right;
+            } else {
+                p.left = getRemMinR(p.left, min);
+            }
+            p = balance(p);
+            return p;
+        }
+
+        private Node<K,V> leftMostDescendant(Node<K,V> p) {
+            assert p != null;
+            while(p.left != null) {
+                p = p.left;
+            }
+            return p;
+        }
+
+        private Node<K,V> parentOfLeftMostAncestor(Node<K,V> p) {
+            assert p != null;
+            while (p.parent != null && p.parent.right == p) {
+                p = p.parent;
+            }
+            return p.parent;
+        }
+
+        @Override
+        public int size() {
+            return size;
+        }
+
+        @Override
         public Iterator<Entry<K, V>> iterator() {
-            return new BTDIterator();
-        }
+            return new Iterator<>() {
+                int n = 0;
+                Node<K,V> p = null;
 
-        public class BTDIterator implements Iterator<Entry<K,V>> {
+                @Override
+                public boolean hasNext() { return n < size - 1; }
 
-            public BTDIterator(){
-                if(rootNode != null) parentNode = leftMostDescendant(rootNode);
-            }
+                @Override
+                public Entry<K, V> next() {
+                    if (p == null)
+                        p = leftMostDescendant(root);
+                    else if (p.right != null)
+                        p = leftMostDescendant(p.right);
+                    else
+                        p = parentOfLeftMostAncestor(p);
 
-
-
-            // Erster Knoten:
-            Node<K,V> parentNode = null;
-
-            @Override
-            public boolean hasNext() {
-                return parentNode != null;
-            }
-
-            @Override
-            public Entry<K, V> next() {
-                Node<K,V> pNode = parentNode;
-
-                if(parentNode.right != null){
-                    parentNode = leftMostDescendant(parentNode.right);
+                    n++;
+                    return new Entry<>(p.key, p.value);
                 }
-                else{
-                    parentNode = parentOfLeftMostAncestor(parentNode);
+            };
+        }
+
+        /**
+         * Pretty prints the tree
+         */
+        public void prettyPrint() {
+            printR(0, root);
+        }
+
+        private void printR(int level, Node<K, V> p) {
+            printLevel(level);
+            if (p == null) {
+                System.out.println("#");
+            } else {
+                System.out.println(p.key + " " + p.value + "^" + ((p.parent == null) ? "null" : p.parent.key));
+                if (p.left != null || p.right != null) {
+                    printR(level + 1, p.left);
+                    printR(level + 1, p.right);
                 }
-
-                return new Entry<>(pNode.key, pNode.value);
             }
         }
 
-
-    /**
-	 * Pretty prints the tree
-	 */
-	public void prettyPrint() {
-        printR(0, rootNode);
-    }
-
-    private void printR(int level, Node<K, V> parentNode) {
-        printLevel(level);
-        if (parentNode == null) {
-            System.out.println("#");
-        } else {
-            System.out.println(parentNode.key + " " + parentNode.value + "^" + ((parentNode.parent == null) ? "null" : parentNode.parent.key.toString()));
-            if (parentNode.left != null || parentNode.right != null) {
-                printR(level + 1, parentNode.left);
-                printR(level + 1, parentNode.right);
+        private static void printLevel(int level) {
+            if (level == 0) {
+                return;
             }
-        }
-    }
-
-    private static void printLevel(int level) {
-        if (level == 0) {
-            return;
-        }
-        for (int i = 0; i < level - 1; i++) {
-            System.out.print("   ");
-        }
-        System.out.print("|__");
-    }
-
-    @Override
-    public int size() {
-        return size;
-    }
-
-     // Ausbalancieren ab hier
-     // erweiterung für AVL-Bäume
-
-     private int getHeight(Node<K,V> p){
-        if(p == null){
-            return -1;
-        }
-        else{
-            return p.height;
-        }
-     }
-
-    private int getBalance(Node<K,V> p){
-        if(p == null){
-            return 0;
-        }
-        else{
-            return getHeight(p.right) - getHeight(p.left);
-        }
-    }
-
-    private Node<K,V> rotateLeft(Node<K,V> p){
-        assert p.right != null;
-        Node<K,V> q = p.right;//Pro Zeile wird ein neur Zeiger gesetzt und immmer
-        p.right = q.left;   // der Zeiger wieder aufgenommen, welcher in der vorherigen Zeile benutzt wurde
-
-        //Veränderter Part
-        if(p.right != null)
-            p.right.parent = p;
-        q.left = p;
-        if(q.left != null) // neu eingefügt
-            q.left.parent = q;
-        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
-        q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
-        return q;
-
-    }
-
-
-    private Node<K,V> rotateRight(Node<K,V> p){
-        assert p.left != null;
-        Node<K,V> q = p.left;
-        p.left = q.right;
-        q.right = p;
-        p.height = Math.max(getHeight(p.left),getHeight(p.right)) +1;
-        q.height = Math.max(getHeight(q.left), getHeight(q.right)) +1;
-
-        return q;
-    }
-
-    //rotateLeftRight ist eine Kombination aus zwei vorherigen Methoden
-    private Node<K,V> rotateLeftRight(Node<K,V> p){
-        assert p.left != null;
-        p.left = rotateLeft(p.left);
-        if(p.left != null){
-        p.left.parent = p;
-        }
-        return rotateRight(p);
-
-    }
-
-    private Node<K,V> rotateRightLeft(Node<K,V> p){
-        assert p.right != null;
-        p.right = rotateRight(p.right);
-        return rotateLeft(p);
-    }
-
-
-    //Mit der balanceMethode moechten wir den Binären Suchbaum auf eine
-    // maximale Hoehe von 2 bringen, mit Hilfe der AVL-Baum Eigenschaft
-    private Node<K,V> balance(Node<K,V> p) {
-        if (p== null) {
-            return null;
-        }
-        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
-        if(getBalance(p) == -2) {
-            if(getBalance(p.left) <= 0) {
-                p = rotateRight(p);
-            } else {
-                p = rotateLeftRight(p);
+            for (int i = 0; i < level - 1; i++) {
+                System.out.print("   ");
             }
-        } else if (getBalance(p) == +2) {
-            if (getBalance(p.right) >= 0) {
-                p = rotateLeft(p);
-            } else {
-                p = rotateRightLeft(p);
-            }
+            System.out.print("|__");
         }
-        return p;
-    }
-
 
 }
