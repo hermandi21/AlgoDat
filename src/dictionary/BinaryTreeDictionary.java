@@ -120,12 +120,16 @@ import java.util.Iterator;
         private Node<K,V> rotateLeftRight(Node<K,V> p) {
             assert p.left != null;
             p.left = rotateLeft(p.left);
+            if (p.left != null)
+                p.left.parent = p;
             return rotateRight(p);
         }
 
         private Node<K,V> rotateRightLeft(Node<K,V> p) {
             assert p.right != null;
             p.right = rotateRight(p.right);
+            if (p.right != null)
+                p.right.parent = p;
             return rotateLeft(p);
         }
 
@@ -191,8 +195,12 @@ import java.util.Iterator;
                 oldValue = null;
             } else if (key.compareTo(p.key) < 0) {
                 p.left = removeR(key, p.left);
+                if (p.left != null)//neu
+                    p.left.parent = p;
             } else if (key.compareTo(p.key) > 0) {
                 p.right = removeR(key, p.right);
+                if (p.right != null)//neu
+                    p.right.parent = p;
             } else if (p.left == null || p.right == null) {
                 oldValue = p.value;
                 p = (p.left != null) ? p.left : p.right;
@@ -214,9 +222,16 @@ import java.util.Iterator;
             if (p.left == null) {
                 min.key = p.key;
                 min.value = p.value;
+
+                if (p.left != null)//neu
+                    p.left.parent = p;
+
                 p = p.right;
             } else {
                 p.left = getRemMinR(p.left, min);
+
+                if (p.left != null)//neu
+                    p.left.parent = p;
             }
             p = balance(p);
             return p;
@@ -249,6 +264,7 @@ import java.util.Iterator;
                 int n = 0;
                 Node<K,V> p = null;
 
+               //Solange counter n kleiner als size ist
                 @Override
                 public boolean hasNext() { return n < size - 1; }
 
