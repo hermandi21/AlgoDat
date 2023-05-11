@@ -27,6 +27,8 @@ build/
 *.ipr
 *.iws
 *.db
+.xml
+
 
 # IDE specific files and folders
 .vscode/
